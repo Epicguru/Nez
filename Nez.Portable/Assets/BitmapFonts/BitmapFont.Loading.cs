@@ -319,11 +319,6 @@ namespace Nez.BitmapFonts
 			{
 				var loaded = Texture2D.FromStream(Core.GraphicsDevice, TitleContainer.OpenStream(Pages[i].Filename));
 
-				using (FileStream fs = new FileStream(@"C:\Users\spain\Desktop\Output.png", FileMode.OpenOrCreate))
-				{
-					loaded.SaveAsPng(fs, loaded.Width, loaded.Height);
-				}
-
 				// Need to premultiply color.
 				Color[] data = new Color[loaded.Width * loaded.Height];
 				loaded.GetData(data);
