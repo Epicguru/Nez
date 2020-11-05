@@ -316,7 +316,28 @@ namespace Nez.BitmapFonts
 		{
 			Textures = new Texture2D[Pages.Length];
 			for (var i = 0; i < Textures.Length; i++)
-				Textures[i] = Texture2D.FromStream(Core.GraphicsDevice, TitleContainer.OpenStream(Pages[i].Filename));
+			{
+				var loaded = Texture2D.FromStream(Core.GraphicsDevice, TitleContainer.OpenStream(Pages[i].Filename));
+
+				using (FileStream fs = new FileStream(@"C:\Users\spain\Desktop\Output.png", FileMode.OpenOrCreate))
+				{
+					loaded.SaveAsPng(fs, loaded.Width, loaded.Height);
+				}
+
+				// Need to premultiply color.
+				Color[] data = new Color[loaded.Width * loaded.Height];
+				loaded.GetData(data);
+				for (int j = 0; j < data.Length; j++)
+				{
+					var cIn = data[j];
+					var cOut = Color.FromNonPremultiplied(cIn.ToVector4());
+
+					data[j] = cOut;
+				}
+				loaded.SetData(data);
+
+				Textures[i] = loaded;
+			}
 		}
 	}
 }
