@@ -204,6 +204,21 @@ namespace Nez
 		#endregion
 
 
+		public int RendererCount
+		{
+			get
+			{
+				return _renderers?.Length ?? 0;
+			}
+		}
+		public int PostRendererCount
+		{
+			get
+			{
+				return _afterPostProcessorRenderers?.Length ?? 0;
+			}
+		}
+
 		RenderTarget2D _sceneRenderTarget;
 		RenderTarget2D _destinationRenderTarget;
 		Action<Texture2D> _screenshotRequestCallback;
