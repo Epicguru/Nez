@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Nez.Textures;
 
 namespace Nez.Sprites
@@ -11,10 +12,21 @@ namespace Nez.Sprites
 		public string[] AnimationNames;
 		public SpriteAnimation[] SpriteAnimations;
 
+		private Dictionary<string, Sprite> namedSprites;
+
 		public Sprite GetSprite(string name)
 		{
-			var index = Array.IndexOf(Names, name);
-			return Sprites[index];
+			// Changed to a dictionary to get O(1) instead of the previous O(n) complexity.
+			if (namedSprites == null || namedSprites.Count != Names.Length)
+			{
+				namedSprites = new Dictionary<string, Sprite>();
+				for(int i = 0; i < Names.Length; i++)
+				{
+					namedSprites.Add(Names[i], Sprites[i]);
+				}
+			}
+
+			return namedSprites.TryGetValue(name, out var spr) ? spr : null;
 		}
 
 		public SpriteAnimation GetAnimation(string name)
