@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using static Nez.Tools.Atlases.SpriteAtlasPacker;
 
 namespace Nez.Tools.Atlases
@@ -40,7 +41,8 @@ namespace Nez.Tools.Atlases
 			int maximumHeight,
 			int imagePadding,
 			out Bitmap outputImage, 
-			out Dictionary<string, Rectangle> outputMap)
+			out Dictionary<string, Rectangle> outputMap,
+			Action<string> step = null)
 		{
 			files = new List<string>(imageFiles);
 			requirePow2 = requirePowerOfTwo;
@@ -59,13 +61,17 @@ namespace Nez.Tools.Atlases
 			// get the sizes of all the images
 			foreach (var image in files)
 			{
-				var bitmap = Bitmap.FromFile(image) as Bitmap;
-				if (bitmap == null)
-					return (int)FailCode.FailedToLoadImage;
-				imageSizes.Add(image, bitmap.Size);
+				step?.Invoke($"Loading {Path.GetFileName(image)}...");
+				using (var bitmap = Bitmap.FromFile(image) as Bitmap)
+				{
+					if (bitmap == null)
+						return (int)FailCode.FailedToLoadImage;
+					imageSizes.Add(image, bitmap.Size);
+				}
 			}
 
 			// sort our files by file size so we place large sprites first
+			step?.Invoke("Sorting images...");
 			files.Sort(
 				(f1, f2) =>
 				{
@@ -84,13 +90,15 @@ namespace Nez.Tools.Atlases
 				});
 
 			// try to pack the images
-			if (!PackImageRectangles())
+			if (!PackImageRectangles(step))
 				return (int)FailCode.FailedToPackImage;
 
 			// make our output image
-			outputImage = CreateOutputImage();
+			outputImage = CreateOutputImage(step);
 			if (outputImage == null)
 				return (int)FailCode.FailedToSaveImage;
+
+			step?.Invoke("Generating meta...");
 				
 			// go through our image placements and replace the width/height found in there with
 			// each image's actual width/height (since the ones in imagePlacement will have padding)
@@ -128,7 +136,7 @@ namespace Nez.Tools.Atlases
 
 		// This method does some trickery type stuff where we perform the TestPackingImages method over and over, 
 		// trying to reduce the image size until we have found the smallest possible image we can fit.
-		private bool PackImageRectangles()
+		private bool PackImageRectangles(Action<string> step = null)
 		{
 			// create a dictionary for our test image placements
 			Dictionary<string, Rectangle> testImagePlacement = new Dictionary<string, Rectangle>();
@@ -147,10 +155,13 @@ namespace Nez.Tools.Atlases
 			int testHeight = outputHeight;
 
 			bool shrinkVertical = false;
+			int i = 0;
 
 			// just keep looping...
 			while (true)
 			{
+				step?.Invoke($"Pack attempt {i + 1}: {testWidth}x{testHeight}");
+				i++;
 				// make sure our test dictionary is empty
 				testImagePlacement.Clear();
 
@@ -252,27 +263,64 @@ namespace Nez.Tools.Atlases
 			return true;
 		}
 
-		private Bitmap CreateOutputImage()
+		private Bitmap CreateOutputImage(Action<string> step = null)
 		{
 			try
 			{
+				step?.Invoke("Creating output image...");
 				var outputImage = new Bitmap(outputWidth, outputHeight, PixelFormat.Format32bppArgb);
+
+				// Fast mode uses Graphics.DrawImage instead of manually copying pixels.
+				// Despite what the original author commented about antialiasing issues,
+				// in my testing I found the output to be identical but the processing 
+				// massively faster.
+				bool FAST_MODE = true;
+				Graphics g = null;
+				if (FAST_MODE)
+					g = Graphics.FromImage(outputImage);
 
 				// draw all the images into the output image
 				foreach (var image in files)
 				{
 					var location = imagePlacement[image];
-					var bitmap = Bitmap.FromFile(image) as Bitmap;
-					if (bitmap == null)
-						return null;
+					step?.Invoke($"Loading {Path.GetFileName(image)}...");
+					using (var bitmap = Bitmap.FromFile(image) as Bitmap)
+					{
+						if (bitmap == null)
+						{
+							g?.Dispose();
+							return null;
+						}
 
-					// copy pixels over to avoid antialiasing or any other side effects of drawing
-					// the subimages to the output image using Graphics
-					for (int x = 0; x < bitmap.Width; x++)
-						for (int y = 0; y < bitmap.Height; y++)
-							outputImage.SetPixel(location.X + x, location.Y + y, bitmap.GetPixel(x, y));
+						step?.Invoke($"Writing {Path.GetFileName(image)}...");
+
+						// copy pixels over to avoid antialiasing or any other side effects of drawing
+						// the subimages to the output image using Graphics
+
+						if (!FAST_MODE)
+						{
+							for (int x = 0; x < bitmap.Width; x++)
+							{
+								for (int y = 0; y < bitmap.Height; y++)
+								{
+									outputImage.SetPixel(location.X + x, location.Y + y, bitmap.GetPixel(x, y));
+								}
+
+								if (x % 16 == 0)
+									step?.Invoke($"Writing {Path.GetFileName(image)} {(float)x / bitmap.Width * 100f:F0}% ...");
+
+							}
+						}
+						else
+						{
+							Rectangle dest = new Rectangle(location.X, location.Y, bitmap.Width, bitmap.Height);
+							Rectangle src = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+							g.DrawImage(bitmap, dest, src, GraphicsUnit.Pixel);
+						}
+					}
 				}
 
+				g?.Dispose();
 				return outputImage;
 			}
 			catch

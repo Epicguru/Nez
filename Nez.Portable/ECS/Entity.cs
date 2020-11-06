@@ -449,6 +449,44 @@ namespace Nez
 		}
 
 		/// <summary>
+		/// Gets the first component of type T and returns it. If the component does not exist on this entity,
+		/// this entity's children are also searched, up to an optional maximum depth.
+		/// </summary>
+		/// <param name="maxDepth">The optional maximum depth to search. Value of -1 means no max depth. Value of 1 means only search first level children, 2 means first and second level etc.</param>
+		/// <typeparam name="T">The type of component to search for.</typeparam>
+		/// <returns></returns>
+		public T GetComponentInChildren<T>(int maxDepth = -1) where T : Component
+		{
+			if (maxDepth == 0) // Max depth 0 just means search this entity.
+				return GetComponent<T>();
+
+			return GetCompInChildrenRec<T>(0, maxDepth);
+		}
+
+		private T GetCompInChildrenRec<T>(int depth, int maxDepth) where T : Component
+		{
+			// Find component on this entity.
+			var found = GetComponent<T>();
+			if (found != null)
+				return found;
+
+			// Before searching children, see if we will be going too deep.
+			depth++;
+			if (maxDepth >= 0 && depth > maxDepth)
+				return null;
+
+			// Search children since it wasn't found on this entity.
+			for (int i = 0; i < Transform.ChildCount; i++)
+			{
+				var child = Transform.GetChild(i).Entity;
+				var cFound = child.GetCompInChildrenRec<T>(depth, maxDepth);
+				if (cFound != null)
+					return cFound;
+			}
+			return null;
+		}
+
+		/// <summary>
 		/// checks to see if the Entity has the component
 		/// </summary>
 		public bool HasComponent<T>() where T : Component => Components.GetComponent<T>(false) != null;

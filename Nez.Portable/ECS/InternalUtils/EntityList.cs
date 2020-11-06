@@ -250,6 +250,31 @@ namespace Nez
 		}
 
 		/// <summary>
+		/// Returns a list of all root entities. Root entities are entities that have no parent.
+		/// Disabled entities will be included in the list, but not destroyed entities.
+		/// The returned list should be put back into the pool via <see cref="ListPool{T}.Free(List{T})"/>.
+		/// </summary>
+		/// <returns>A list of scene root entities.</returns>
+		public List<Entity> RootEntities()
+		{
+			var list = ListPool<Entity>.Obtain();
+			for (var i = 0; i < _entities.Length; i++)
+			{
+				var e = _entities.Buffer[i];
+				if (!e.IsDestroyed && e.Parent == null)
+					list.Add(e);
+			}
+
+			foreach (var e in _entitiesToAdd)
+			{
+				if (!e.IsDestroyed && e.Parent == null)
+					list.Add(e);
+			}
+
+			return list;
+		}
+
+		/// <summary>
 		/// returns a list of all entities with tag. If no entities have the tag an empty list is returned. The returned List can be put back in the pool via ListPool.free.
 		/// </summary>
 		/// <returns>The with tag.</returns>

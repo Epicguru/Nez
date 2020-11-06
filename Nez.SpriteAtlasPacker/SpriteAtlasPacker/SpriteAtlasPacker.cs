@@ -37,12 +37,13 @@ namespace Nez.Tools.Atlases
 			public bool OutputLua;
 		}
 
-		public static int PackSprites(Config config)
+		public static int PackSprites(Config config, Action<string> step = null, Func<string, bool> filePicker = null)
 		{
 			// compile a list of images
 			var animations = new Dictionary<string, List<string>>();
 			var images = new List<string>();
-			FindImages(config, images, animations);
+			step?.Invoke("Finding sprites...");
+			FindImages(config, images, animations, filePicker);
 
 			// make sure we found some images
 			if (images.Count == 0)
@@ -51,6 +52,7 @@ namespace Nez.Tools.Atlases
 				return (int)FailCode.NoImages;
 			}
 
+			step?.Invoke("Checking for duplicate names...");
 			// make sure no images have the same name if we're building a map
 			for (int i = 0; i < images.Count; i++)
 			{
@@ -70,7 +72,7 @@ namespace Nez.Tools.Atlases
 			var imagePacker = new ImagePacker();
 
 			// pack the image, generating a map only if desired
-			int result = imagePacker.PackImage(images, config.IsPowerOfTwo, config.IsSquare, config.AtlasMaxWidth, config.AtlasMaxHeight, config.Padding, out Bitmap outputImage, out Dictionary<string, Rectangle> outputMap);
+			int result = imagePacker.PackImage(images, config.IsPowerOfTwo, config.IsSquare, config.AtlasMaxWidth, config.AtlasMaxHeight, config.Padding, out Bitmap outputImage, out Dictionary<string, Rectangle> outputMap, step);
 			if (result != 0)
 			{
 				System.Console.WriteLine("There was an error making the image sheet.");
@@ -79,8 +81,12 @@ namespace Nez.Tools.Atlases
 
 			// try to save using our exporters
 			if (File.Exists(config.AtlasOutputFile))
+			{
+				step?.Invoke("Removing existing output file...");
 				File.Delete(config.AtlasOutputFile);
+			}
 
+			step?.Invoke("Saving output file...");
 			var imageExtension = Path.GetExtension(config.AtlasOutputFile).Substring(1).ToLower();
 			switch (imageExtension)
 			{
@@ -101,17 +107,22 @@ namespace Nez.Tools.Atlases
 				config.MapOutputFile = config.MapOutputFile.Replace( ".atlas", ".lua" );
 
 			if (File.Exists(config.MapOutputFile))
+			{
+				step?.Invoke("Deleting existing meta file...");
 				File.Delete(config.MapOutputFile);
+			}
 
+			step?.Invoke("Saving meta file...");
 			if (config.OutputLua)
 				LuaMapExporter.Save(config.MapOutputFile, outputMap, animations, outputImage.Width, outputImage.Height, config );
 			else
 				AtlasMapExporter.Save(config.MapOutputFile, outputMap, animations, config);
 
+			step?.Invoke("Done");
 			return 0;
 		}
 
-		static void FindImages(Config arguments, List<string> images, Dictionary<string, List<string>> animations)
+		static void FindImages(Config arguments, List<string> images, Dictionary<string, List<string>> animations, Func<string, bool> filePicker)
 		{
 			foreach (var str in arguments.InputPaths)
 			{
@@ -119,26 +130,26 @@ namespace Nez.Tools.Atlases
 				{
 					foreach (var file in Directory.GetFiles(str))
 					{
-						if (MiscHelper.IsImageFile(file))
+						if (MiscHelper.IsImageFile(file) && (filePicker?.Invoke(file) ?? true))
 							images.Add(file);
 					}
 
 					foreach (var dir in Directory.GetDirectories(str))
-						FindImagesRecursively(dir, images, animations, !arguments.DontCreateAnimations);
+						FindImagesRecursively(dir, images, animations, !arguments.DontCreateAnimations, filePicker);
 				}
-				else if (MiscHelper.IsImageFile(str))
+				else if (MiscHelper.IsImageFile(str) && (filePicker?.Invoke(str) ?? true))
 				{
 					images.Add(str);
 				}
 			}
 		}
 
-		static void FindImagesRecursively(string dir, List<string> images, Dictionary<string, List<string>> animations, bool createAnimations)
+		static void FindImagesRecursively(string dir, List<string> images, Dictionary<string, List<string>> animations, bool createAnimations, Func<string, bool> filePicker)
 		{
 			var animationFrames = new List<string>();
 			foreach (var file in Directory.GetFiles(dir).OrderBy(_ => _))
 			{
-				if (MiscHelper.IsImageFile(file))
+				if (MiscHelper.IsImageFile(file) && (filePicker?.Invoke(file) ?? true))
 				{
 					images.Add(file);
 					animationFrames.Add(file);
@@ -149,7 +160,7 @@ namespace Nez.Tools.Atlases
 				animations.Add( Path.GetFileName( dir ), animationFrames );
 
 			foreach (var subdir in Directory.GetDirectories(dir))
-				FindImagesRecursively(subdir, images, animations, createAnimations);
+				FindImagesRecursively(subdir, images, animations, createAnimations, filePicker);
 		}
 
 	}
