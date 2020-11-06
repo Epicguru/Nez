@@ -515,7 +515,7 @@ namespace Nez.UI
 			if (Entity != null && !IsFullScreen)
 				return Entity.Scene.SceneRenderTargetSize.X;
 
-			return Screen.Width;
+			return Screen.Width / root.GetScaleX();
 		}
 
 
@@ -528,7 +528,7 @@ namespace Nez.UI
 			if (Entity != null && !IsFullScreen)
 				return Entity.Scene.SceneRenderTargetSize.Y;
 
-			return Screen.Height;
+			return Screen.Height / root.GetScaleY();
 		}
 
 

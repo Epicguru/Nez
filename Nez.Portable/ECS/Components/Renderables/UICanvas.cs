@@ -95,5 +95,35 @@ namespace Nez
 
 			return dialog;
 		}
+
+		/// <summary>
+		/// Displays a simple dialog with a button to close it.
+		/// Uses a skin.
+		/// </summary>
+		/// <returns>The dialog.</returns>
+		/// <param name="title">Title.</param>
+		/// <param name="messageText">Message text.</param>
+		/// <param name="closeButtonText">Close button text.</param>
+		public Dialog ShowDialog(string title, string messageText, string closeButtonText, Skin skin)
+		{
+			var styleTemp = skin.Get<WindowStyle>();
+
+			var style = new WindowStyle
+			{
+				TitleFont = styleTemp.TitleFont,
+				TitleFontColor = styleTemp.TitleFontColor,
+				Background = new PrimitiveDrawable(new Color(50, 50, 50)),
+				StageBackground = new PrimitiveDrawable(new Color(0, 0, 0, 150))
+			};
+
+			var dialog = new Dialog(title, style);
+			dialog.GetTitleLabel().GetStyle().Background = new PrimitiveDrawable(new Color(55, 100, 100));
+			dialog.Pad(100, 5, 5, 5);
+			dialog.AddText(new Label(messageText, skin));
+			dialog.AddButton(new TextButton(closeButtonText, skin)).OnClicked += butt => dialog.Hide();
+			dialog.Show(Stage);
+
+			return dialog;
+		}
 	}
 }

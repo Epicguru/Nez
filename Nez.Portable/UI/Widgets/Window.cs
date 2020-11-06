@@ -252,7 +252,7 @@ namespace Nez.UI
 			if (style.StageBackground != null)
 			{
 				var stagePos = StageToLocalCoordinates(Vector2.Zero);
-				var stageSize = StageToLocalCoordinates(new Vector2(_stage.GetWidth(), _stage.GetHeight()));
+				var stageSize = StageToLocalCoordinates(new Vector2(_stage.GetWidth() * _stage.GetRoot().GetScaleX(), _stage.GetHeight() * _stage.GetRoot().GetScaleY()));
 				DrawStageBackground(batcher, parentAlpha, GetX() + stagePos.X, GetY() + stagePos.Y,
 					GetX() + stageSize.X, GetY() + stageSize.Y);
 			}
