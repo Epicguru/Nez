@@ -277,6 +277,9 @@ namespace Nez
 		/// </summary>
 		public void Destroy()
 		{
+			if (_isDestroyed)
+				return;
+
 			_isDestroyed = true;
 			Scene.Entities.Remove(this);
 			Transform.Parent = null;

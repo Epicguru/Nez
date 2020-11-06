@@ -298,11 +298,11 @@ namespace Nez
 		/// </summary>
 		/// <returns>The component of type.</returns>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		public T FindComponentOfType<T>() where T : Component
+		public T FindComponentOfType<T>(bool onlyIfEnabled = true) where T : Component
 		{
 			for (var i = 0; i < _entities.Length; i++)
 			{
-				if (_entities.Buffer[i].Enabled)
+				if (!onlyIfEnabled || _entities.Buffer[i].Enabled)
 				{
 					var comp = _entities.Buffer[i].GetComponent<T>();
 					if (comp != null)
@@ -312,7 +312,7 @@ namespace Nez
 
 			foreach (var entity in _entitiesToAdd)
 			{
-				if (entity.Enabled)
+				if (!onlyIfEnabled || entity.Enabled)
 				{
 					var comp = entity.GetComponent<T>();
 					if (comp != null)
@@ -328,18 +328,18 @@ namespace Nez
 		/// </summary>
 		/// <returns>The components of type.</returns>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		public List<T> FindComponentsOfType<T>() where T : Component
+		public List<T> FindComponentsOfType<T>(bool onlyIfEnabled = true) where T : Component
 		{
 			var comps = ListPool<T>.Obtain();
 			for (var i = 0; i < _entities.Length; i++)
 			{
-				if (_entities.Buffer[i].Enabled)
+				if (!onlyIfEnabled || _entities.Buffer[i].Enabled)
 					_entities.Buffer[i].GetComponents<T>(comps);
 			}
 
 			foreach (var entity in _entitiesToAdd)
 			{
-				if (entity.Enabled)
+				if (!onlyIfEnabled || entity.Enabled)
 				{
 					entity.GetComponents<T>(comps);
 				}

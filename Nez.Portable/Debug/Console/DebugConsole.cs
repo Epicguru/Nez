@@ -649,7 +649,14 @@ namespace Nez.Console
 				{
 					if (parameters.Length == 0)
 					{
-						method.Invoke(null, null);
+						try
+						{
+							method.Invoke(null, null);
+						}
+						catch (Exception e)
+						{
+							Log(e is TargetInvocationException ? e.InnerException : e);
+						}
 					}
 					else
 					{
@@ -673,7 +680,7 @@ namespace Nez.Console
 						}
 						catch (Exception e)
 						{
-							Log(e);
+							Log(e is TargetInvocationException ? e.InnerException : e);
 						}
 					}
 				};
@@ -713,27 +720,18 @@ namespace Nez.Console
 
 		static int ArgInt(string arg)
 		{
-			try
-			{
-				return Convert.ToInt32(arg);
-			}
-			catch
-			{
-				return 0;
-			}
+			
+			if (int.TryParse(arg, out var val))
+				return val;
+			return 0;
 		}
 
 
 		static float ArgFloat(string arg)
 		{
-			try
-			{
-				return Convert.ToSingle(arg);
-			}
-			catch
-			{
-				return 0;
-			}
+			if (float.TryParse(arg, out var val))
+				return val;
+			return 0f;
 		}
 
 #endregion

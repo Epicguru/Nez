@@ -1048,6 +1048,20 @@ namespace Nez
 		}
 
 		/// <summary>
+		/// Removes all entities from the scene,
+		/// except for the specified entity.
+		/// </summary>
+		public void DestroyAllEntities(Entity except)
+		{
+			for (var i = 0; i < Entities.Count; i++)
+			{
+				var e = Entities[i];
+				if (e != except)
+					e.Destroy();
+			}
+		}
+
+		/// <summary>
 		/// searches for and returns the first Entity with name
 		/// </summary>
 		/// <returns>The entity.</returns>
