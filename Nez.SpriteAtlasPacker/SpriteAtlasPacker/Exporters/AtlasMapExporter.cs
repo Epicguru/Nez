@@ -8,7 +8,17 @@ namespace Nez.Tools.Atlases
 	{
 		public static string MapExtension => "lua";
 
-		public static void Save(string filename, Dictionary<string, Rectangle> map, Dictionary<string, List<string>> animations, SpriteAtlasPacker.Config arguments )
+		public static string MakeSpriteName(string path, string relativeTo)
+		{
+			string relativeToPath = Path.GetFullPath(relativeTo);
+			string fullPath = Path.GetFullPath(path).Replace('\\', '/');
+			string ext = Path.GetExtension(path);
+
+			string temp = fullPath.Substring(relativeToPath.Length);
+			return temp.Substring(0, temp.Length - ext.Length);
+		}
+
+		public static void Save(string filename, Dictionary<string, Rectangle> map, Dictionary<string, List<string>> animations, SpriteAtlasPacker.Config arguments, string relativeTo)
 		{
 			var images = new List<string>( map.Keys);
 			using (var writer = new StreamWriter(filename))
@@ -20,7 +30,7 @@ namespace Nez.Tools.Atlases
 
 					// write out the destination rectangle for this bitmap
 					writer.WriteLine("{0}\n\t{1},{2},{3},{4}\n\t{5},{6}", 
-	                 	Path.GetFileNameWithoutExtension(image), 
+	                 	MakeSpriteName(image, relativeTo), 
 	                 	destination.X, 
 	                 	destination.Y, 
 	                 	destination.Width, 

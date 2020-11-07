@@ -37,7 +37,7 @@ namespace Nez.Tools.Atlases
 			public bool OutputLua;
 		}
 
-		public static int PackSprites(Config config, Action<string> step = null, Func<string, bool> filePicker = null)
+		public static int PackSprites(Config config, Action<string> step = null, Func<string, bool> filePicker = null, string namesRelativeTo = null)
 		{
 			// compile a list of images
 			var animations = new Dictionary<string, List<string>>();
@@ -52,21 +52,21 @@ namespace Nez.Tools.Atlases
 				return (int)FailCode.NoImages;
 			}
 
-			step?.Invoke("Checking for duplicate names...");
+			//step?.Invoke("Checking for duplicate names...");
 			// make sure no images have the same name if we're building a map
-			for (int i = 0; i < images.Count; i++)
-			{
-				var str1 = Path.GetFileNameWithoutExtension(images[i]);
-				for (int j = i + 1; j < images.Count; j++)
-				{
-					var str2 = Path.GetFileNameWithoutExtension(images[j]);
-					if (str1 == str2)
-					{
-						System.Console.WriteLine("Two images have the same name: {0} = {1}", images[i], images[j]);
-						return (int)FailCode.ImageNameCollision;
-					}
-				}
-			}
+			//for (int i = 0; i < images.Count; i++)
+			//{
+			//	var str1 = Path.GetFileNameWithoutExtension(images[i]);
+			//	for (int j = i + 1; j < images.Count; j++)
+			//	{
+			//		var str2 = Path.GetFileNameWithoutExtension(images[j]);
+			//		if (str1 == str2)
+			//		{
+			//			System.Console.WriteLine("Two images have the same name: {0} = {1}", images[i], images[j]);
+			//			return (int)FailCode.ImageNameCollision;
+			//		}
+			//	}
+			//}
 
 			// generate our output
 			var imagePacker = new ImagePacker();
@@ -113,10 +113,13 @@ namespace Nez.Tools.Atlases
 			}
 
 			step?.Invoke("Saving meta file...");
+			if (namesRelativeTo == null)
+				namesRelativeTo = config.InputPaths[0];
+			
 			if (config.OutputLua)
 				LuaMapExporter.Save(config.MapOutputFile, outputMap, animations, outputImage.Width, outputImage.Height, config );
 			else
-				AtlasMapExporter.Save(config.MapOutputFile, outputMap, animations, config);
+				AtlasMapExporter.Save(config.MapOutputFile, outputMap, animations, config, namesRelativeTo);
 
 			step?.Invoke("Done");
 			return 0;

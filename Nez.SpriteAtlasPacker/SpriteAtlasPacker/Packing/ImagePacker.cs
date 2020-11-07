@@ -251,13 +251,13 @@ namespace Nez.Tools.Atlases
 
 				// pack the image
 				Point origin;
-				if (!rectanglePacker.TryPack(size.Width + padding, size.Height + padding, out origin))
+				if (!rectanglePacker.TryPack(size.Width + padding * 2, size.Height + padding * 2, out origin))
 				{
 					return false;
 				}
 
 				// add the destination rectangle to our dictionary
-				testImagePlacement.Add(image, new Rectangle(origin.X, origin.Y, size.Width + padding, size.Height + padding));
+				testImagePlacement.Add(image, new Rectangle(origin.X + padding, origin.Y + padding, size.Width + padding * 2, size.Height + padding * 2));
 			}
 
 			return true;
@@ -316,6 +316,25 @@ namespace Nez.Tools.Atlases
 							Rectangle dest = new Rectangle(location.X, location.Y, bitmap.Width, bitmap.Height);
 							Rectangle src = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
 							g.DrawImage(bitmap, dest, src, GraphicsUnit.Pixel);
+							int amount = padding;
+							if (padding >= 1)
+							{
+								var left = new Rectangle(location.X - amount, location.Y, amount, bitmap.Height);
+								var leftSrc = new Point(0, 0);
+								Blit(outputImage, bitmap, left, leftSrc, false);
+
+								var right = new Rectangle(location.X + bitmap.Width, location.Y, amount, bitmap.Height);
+								var rightSrc = new Point(bitmap.Width - 1, 0);
+								Blit(outputImage, bitmap, right, rightSrc, false);
+
+								var top = new Rectangle(location.X, location.Y - amount, bitmap.Width, amount);
+								var topSrc = new Point(0, 0);
+								Blit(outputImage, bitmap, top, topSrc, true);
+
+								var bot = new Rectangle(location.X, location.Y + bitmap.Height, bitmap.Width, amount);
+								var botSrc = new Point(0, bitmap.Height - 1);
+								Blit(outputImage, bitmap, bot, botSrc, true);
+							}
 						}
 					}
 				}
@@ -326,6 +345,26 @@ namespace Nez.Tools.Atlases
 			catch
 			{
 				return null;
+			}
+		}
+
+		private void Blit(Bitmap dstBitmap, Bitmap srcBitmap, Rectangle dest, Point src, bool horizontal)
+		{
+			int ix = 0, iy = 0;
+			for (int x = dest.X; x < dest.Right; x++)
+			{
+				for (int y = dest.Y; y < dest.Bottom; y++)
+				{
+					int sx = horizontal ? src.X + ix : src.X;
+					int sy = horizontal ? src.Y : src.Y + iy;
+					Color col = srcBitmap.GetPixel(sx, sy);
+
+					dstBitmap.SetPixel(x, y, col);
+					iy++;
+				}
+
+				ix++;
+				iy = 0;
 			}
 		}
 	}
