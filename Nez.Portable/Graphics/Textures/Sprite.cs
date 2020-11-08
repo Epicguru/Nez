@@ -36,6 +36,32 @@ namespace Nez.Textures
 		/// </summary>
 		public Vector2 Origin;
 
+		/// <summary>
+		/// A version of the <see cref="Origin"/> where the values are in the range 0 to 1.
+		/// </summary>
+		public Vector2 OriginNormalized
+		{
+			get
+			{
+				return new Vector2(Origin.X / SourceRect.Width, Origin.Y / SourceRect.Height);
+			}
+			set
+			{
+				Origin = new Vector2(value.X * SourceRect.Width, value.Y * SourceRect.Height);
+			}
+		}
+
+		/// <summary>
+		/// The original width and height of this sprite.
+		/// </summary>
+		public Vector2 Size
+		{
+			get
+			{
+				return new Vector2(SourceRect.Width, SourceRect.Height);
+			}
+		}
+
 
 		public Sprite(Texture2D texture, Rectangle sourceRect, Vector2 origin)
 		{

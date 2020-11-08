@@ -385,7 +385,7 @@ namespace Nez.Analysis
 				{
 					throw new OverflowException(
 						"Exceeded sample count.\n" +
-						"Either set larger number to TimeRuler.MaxSmpale or" +
+						"Either set larger number to TimeRuler.MaxSmpale or " +
 						"lower sample count.");
 				}
 

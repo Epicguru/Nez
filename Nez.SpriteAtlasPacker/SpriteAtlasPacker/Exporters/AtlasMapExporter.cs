@@ -10,12 +10,15 @@ namespace Nez.Tools.Atlases
 
 		public static string MakeSpriteName(string path, string relativeTo)
 		{
+			if (!relativeTo.EndsWith("/") && !relativeTo.EndsWith("\\"))
+				relativeTo += "\\";
+
 			string relativeToPath = Path.GetFullPath(relativeTo);
-			string fullPath = Path.GetFullPath(path).Replace('\\', '/');
+			string fullPath = Path.GetFullPath(path);
 			string ext = Path.GetExtension(path);
 
 			string temp = fullPath.Substring(relativeToPath.Length);
-			return temp.Substring(0, temp.Length - ext.Length);
+			return temp.Substring(0, temp.Length - ext.Length).Replace("\\", "/");
 		}
 
 		public static void Save(string filename, Dictionary<string, Rectangle> map, Dictionary<string, List<string>> animations, SpriteAtlasPacker.Config arguments, string relativeTo)

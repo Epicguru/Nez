@@ -165,7 +165,7 @@ namespace Nez.Systems
 		/// <summary>
 		/// Loads a SpriteAtlas created with the Sprite Atlas Packer tool
 		/// </summary>
-		public SpriteAtlas LoadSpriteAtlas(string name, bool premultiplyAlpha = false)
+		public SpriteAtlas LoadSpriteAtlas(string name, bool premultiplyAlpha = true)
 		{
 			if (LoadedAssets.TryGetValue(name, out var asset))
 			{

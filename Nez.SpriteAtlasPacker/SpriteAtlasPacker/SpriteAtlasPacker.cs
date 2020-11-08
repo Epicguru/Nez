@@ -127,8 +127,13 @@ namespace Nez.Tools.Atlases
 
 		static void FindImages(Config arguments, List<string> images, Dictionary<string, List<string>> animations, Func<string, bool> filePicker)
 		{
-			foreach (var str in arguments.InputPaths)
+			for(int i = 0; i < arguments.InputPaths.Length; i++)
 			{
+				string str = arguments.InputPaths[i];
+				string dirName = Path.GetFileName(str);
+				if (dirName.StartsWith("[Atlas]") && i > 0)
+					continue;
+
 				if (Directory.Exists(str))
 				{
 					foreach (var file in Directory.GetFiles(str))
@@ -138,7 +143,12 @@ namespace Nez.Tools.Atlases
 					}
 
 					foreach (var dir in Directory.GetDirectories(str))
+					{
+						if (Path.GetFileName(dir).StartsWith("[Atlas]"))
+							continue;
+
 						FindImagesRecursively(dir, images, animations, !arguments.DontCreateAnimations, filePicker);
+					}
 				}
 				else if (MiscHelper.IsImageFile(str) && (filePicker?.Invoke(str) ?? true))
 				{
@@ -163,7 +173,10 @@ namespace Nez.Tools.Atlases
 				animations.Add( Path.GetFileName( dir ), animationFrames );
 
 			foreach (var subdir in Directory.GetDirectories(dir))
-				FindImagesRecursively(subdir, images, animations, createAnimations, filePicker);
+			{
+				if(!Path.GetFileName(subdir).StartsWith("[Atlas]"))
+					FindImagesRecursively(subdir, images, animations, createAnimations, filePicker);
+			}
 		}
 
 	}
