@@ -23,9 +23,10 @@
 			for (var i = 0; i < scene.RenderableComponents.Count; i++)
 			{
 				var renderable = scene.RenderableComponents[i];
-				if (!ExcludedRenderLayers.Contains(renderable.RenderLayer) && renderable.Enabled &&
-				    renderable.IsVisibleFromCamera(cam))
+				if (renderable.Enabled && !ExcludedRenderLayers.Contains(renderable.RenderLayer) && renderable.IsVisibleFromCamera(cam))
+				{
 					RenderAfterStateCheck(renderable, cam);
+				}
 			}
 
 			if (ShouldDebugRender && Core.DebugRenderEnabled)

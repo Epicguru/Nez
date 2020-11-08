@@ -81,6 +81,17 @@ namespace Nez
 		public static Core Instance => _instance;
 
 		/// <summary>
+		/// Returns true if there is currently an active scene transition.
+		/// </summary>
+		public static bool IsInTransition
+		{
+			get
+			{
+				return _instance._sceneTransition != null;
+			}
+		}
+
+		/// <summary>
 		/// facilitates easy access to the global Content instance for internal classes
 		/// </summary>
 		internal static Core _instance;

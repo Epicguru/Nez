@@ -101,7 +101,7 @@ namespace Nez
 		/// minimum non-scaled value (0 - float.Max) that the camera zoom can be. Defaults to 0.3
 		/// </summary>
 		/// <value>The minimum zoom.</value>
-		[Range(0, 30)]
+		[Range(0.01f, 30)]
 		public float MinimumZoom
 		{
 			get => _minimumZoom;
