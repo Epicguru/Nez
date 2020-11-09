@@ -22,6 +22,7 @@ namespace Nez
 		static MouseState _currentMouseState;
 		static internal FastList<VirtualInput> _virtualInputs = new FastList<VirtualInput>();
 		static int _maxSupportedGamePads;
+		static Vector2 _worldMousePos;
 
 		/// <summary>
 		/// the TouchInput details when on a device that supports touch
@@ -42,6 +43,12 @@ namespace Nez
 		/// </summary>
 		/// <returns></returns>
 		public static Vector2 ResolutionOffset => _resolutionOffset.ToVector2();
+
+		/// <summary>
+		/// Gets the current scene's mouse position in world space.
+		/// Uses the default scene Camera.
+		/// </summary>
+		public static Vector2 WorldMousePos => _worldMousePos;
 
 		/// <summary>
 		/// gets/sets the maximum supported gamepads
@@ -94,6 +101,9 @@ namespace Nez
 
 			for (var i = 0; i < _virtualInputs.Length; i++)
 				_virtualInputs.Buffer[i].Update();
+
+			if (Core.Scene?.Camera != null)
+				_worldMousePos = Core.Scene.Camera.ScreenToWorldPoint(MousePosition);
 		}
 
 		/// <summary>
@@ -207,6 +217,23 @@ namespace Nez
 
 		#region Mouse
 
+		public static bool IsMouseOverImGui
+		{
+			get
+			{
+#if DEBUG
+				return _isMouseOverImgui;
+#else
+				return false;
+#endif
+			}
+		}
+		private static bool _isMouseOverImgui;
+		public static void SetMouseOverImGui(bool overImGui)
+		{
+			_isMouseOverImgui = overImGui;
+		}
+
 		/// <summary>
 		/// returns the previous mouse state. Use with caution as it only contains raw data and does not take camera scaling into affect like
 		/// Input.mousePosition does.
@@ -224,18 +251,20 @@ namespace Nez
 		/// only true if down this frame
 		/// </summary>
 		public static bool LeftMouseButtonPressed =>
+			!IsMouseOverImGui &&
 			_currentMouseState.LeftButton == ButtonState.Pressed &&
 			_previousMouseState.LeftButton == ButtonState.Released;
 
 		/// <summary>
 		/// true while the button is down
 		/// </summary>
-		public static bool LeftMouseButtonDown => _currentMouseState.LeftButton == ButtonState.Pressed;
+		public static bool LeftMouseButtonDown => !IsMouseOverImGui && _currentMouseState.LeftButton == ButtonState.Pressed;
 
 		/// <summary>
 		/// true only the frame the button is released
 		/// </summary>
 		public static bool LeftMouseButtonReleased =>
+			!IsMouseOverImGui &&
 			_currentMouseState.LeftButton == ButtonState.Released &&
 			_previousMouseState.LeftButton == ButtonState.Pressed;
 
@@ -243,18 +272,20 @@ namespace Nez
 		/// only true if pressed this frame
 		/// </summary>
 		public static bool RightMouseButtonPressed =>
+			!IsMouseOverImGui &&
 			_currentMouseState.RightButton == ButtonState.Pressed &&
 			_previousMouseState.RightButton == ButtonState.Released;
 
 		/// <summary>
 		/// true while the button is down
 		/// </summary>
-		public static bool RightMouseButtonDown => _currentMouseState.RightButton == ButtonState.Pressed;
+		public static bool RightMouseButtonDown => !IsMouseOverImGui && _currentMouseState.RightButton == ButtonState.Pressed;
 
 		/// <summary>
 		/// true only the frame the button is released
 		/// </summary>
 		public static bool RightMouseButtonReleased =>
+			!IsMouseOverImGui &&
 			_currentMouseState.RightButton == ButtonState.Released &&
 			_previousMouseState.RightButton == ButtonState.Pressed;
 
@@ -262,18 +293,20 @@ namespace Nez
 		/// only true if down this frame
 		/// </summary>
 		public static bool MiddleMouseButtonPressed =>
+			!IsMouseOverImGui &&
 			_currentMouseState.MiddleButton == ButtonState.Pressed &&
 			_previousMouseState.MiddleButton == ButtonState.Released;
 
 		/// <summary>
 		/// true while the button is down
 		/// </summary>
-		public static bool MiddleMouseButtonDown => _currentMouseState.MiddleButton == ButtonState.Pressed;
+		public static bool MiddleMouseButtonDown => !IsMouseOverImGui && _currentMouseState.MiddleButton == ButtonState.Pressed;
 
 		/// <summary>
 		/// true only the frame the button is released
 		/// </summary>
 		public static bool MiddleMouseButtonReleased =>
+			!IsMouseOverImGui &&
 			_currentMouseState.MiddleButton == ButtonState.Released &&
 			_previousMouseState.MiddleButton == ButtonState.Pressed;
 
@@ -360,7 +393,7 @@ namespace Nez
 			}
 		}
 
-		#endregion
+#endregion
 	}
 
 

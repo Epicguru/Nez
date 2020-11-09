@@ -269,8 +269,9 @@ namespace Nez
 			UpdateLists();
 			for (var i = 0; i < _updatableComponents.Length; i++)
 			{
-				if (_updatableComponents.Buffer[i].Enabled && (_updatableComponents.Buffer[i] as Component).Enabled)
-					_updatableComponents.Buffer[i].Update();
+				var b = _updatableComponents.Buffer[i];
+				if (b.Enabled && (b as Component).Enabled)
+					b.Update();
 			}
 		}
 

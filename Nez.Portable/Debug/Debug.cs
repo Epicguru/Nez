@@ -58,6 +58,14 @@ namespace Nez
 		}
 
 		[DebuggerHidden]
+		[Conditional("DEBUG")]
+		public static void ErrorIfDebug(bool condition, string format, params object[] args)
+		{
+			if (condition)
+				Log(LogType.Error, format, args);
+		}
+
+		[DebuggerHidden]
 		public static void Warn(string format, params object[] args)
 		{
 			Log(LogType.Warn, format, args);

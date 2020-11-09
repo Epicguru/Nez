@@ -109,6 +109,27 @@ namespace Nez.ImGuiTools
 		}
 
 		/// <summary>
+		/// Draws a control disabled if a condition is met.
+		/// Intended to draw a single ImGui control.
+		/// </summary>
+		public static void DrawDisabledIf(bool disabled, Action a)
+		{
+			if (a == null)
+				return;
+
+			if (disabled)
+			{
+				ImGui.PushStyleVar(ImGuiStyleVar.Alpha, ImGui.GetStyle().Alpha * 0.5f);
+				NezImGui.DisableNextWidget();
+			}
+			a();
+			if (disabled)
+			{
+				ImGui.PopStyleVar();
+			}
+		}
+
+		/// <summary>
 		/// displays a simple dialog with some text and a couple buttons. Note that ImGui.OpenPopup( name ) has to be called
 		/// in the same ID scope as this call.
 		/// </summary>
