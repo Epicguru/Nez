@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework.Input;
 using Num = System.Numerics;
 using Nez.Persistence.Binary;
 
-
 namespace Nez.ImGuiTools
 {
 	public partial class ImGuiManager : GlobalManager, IFinalRenderDelegate, IDisposable
@@ -279,7 +278,7 @@ namespace Nez.ImGuiTools
 
 		public override void OnDisabled()
 		{
-			Unload();
+			//Unload(); // No need to unload when only disabled. This causes custom windows to also disapear.
 			if (Core.Scene != null)
 				Core.Scene.FinalRenderDelegate = null;
 		}

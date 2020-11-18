@@ -87,6 +87,13 @@ namespace Nez
 
 		[Conditional("DEBUG")]
 		[DebuggerHidden]
+		public static void Log(string obj)
+		{
+			Log(LogType.Log, "{0}", obj);
+		}
+
+		[Conditional("DEBUG")]
+		[DebuggerHidden]
 		public static void Log(string format, params object[] args)
 		{
 			Log(LogType.Log, format, args);

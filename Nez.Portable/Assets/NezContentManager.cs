@@ -374,6 +374,10 @@ namespace Nez.Systems
 					Debug.Error("Could not unload asset {0}. {1}", assetName, e);
 				}
 			}
+			else
+			{
+				Debug.Error($"Asset '{assetName}' is not loaded, cannot unload.");
+			}
 		}
 
 		/// <summary>

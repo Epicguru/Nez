@@ -37,6 +37,17 @@ namespace Nez
 			return vec;
 		}
 
+		/// <summary>
+		/// Returns a position between a and b by moving no more than the max distance. 
+		/// </summary>
+		public static Vector2 MoveTowards(Vector2 a, Vector2 b, float maxDst)
+		{
+			Vector2 dir = b - a;
+			if (dir.LengthSquared() <= maxDst * maxDst)
+				return b;
+			return a + dir.Normalized() * maxDst;
+;		}
+
 
 		/// <summary>
 		/// rounds the x and y values

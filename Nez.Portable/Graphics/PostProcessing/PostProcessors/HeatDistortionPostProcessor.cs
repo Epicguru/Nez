@@ -69,6 +69,7 @@ namespace Nez
 		public override void Unload()
 		{
 			_scene.Content.UnloadEffect(Effect);
+			//_scene.Content.UnloadAsset<Texture2D>("nez/textures/heatDistortionNoise");
 			base.Unload();
 		}
 

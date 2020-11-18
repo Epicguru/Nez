@@ -25,7 +25,7 @@ namespace Nez
 				for (var i = _debugDrawItems.Count - 1; i >= 0; i--)
 				{
 					var item = _debugDrawItems[i];
-					if (item.Draw(Graphics.Instance.Batcher))
+					if (item?.Draw(Graphics.Instance.Batcher) ?? true)
 						_debugDrawItems.RemoveAt(i);
 				}
 
