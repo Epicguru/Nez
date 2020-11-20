@@ -411,6 +411,42 @@ namespace Nez
 			);
 		}
 
+		/// <summary>
+		/// Custom version of draw sprite, where you can assign 4 individual vertex colors.
+		/// </summary>
+		public void Draw4Col(
+			Sprite sprite,
+			Vector2 position,
+			Color tl,
+			Color tr,
+			Color bl,
+			Color br,
+			float rotation,
+			Vector2 origin,
+			float scale,
+			SpriteEffects effects,
+			float layerDepth
+		)
+		{
+			CheckBegin();
+			PushSprite4Col(
+				sprite,
+				position.X,
+				position.Y,
+				scale,
+				scale,
+				tl,
+				tr,
+				bl,
+				br,
+				origin,
+				rotation,
+				layerDepth,
+				(byte)(effects & (SpriteEffects)0x03),
+				0, 0, 0, 0
+			); ;
+		}
+
 		public void Draw(
 			Texture2D texture,
 			Vector2 position,
@@ -980,6 +1016,154 @@ namespace Nez
 			}
 		}
 
+		/// <summary>
+		/// Sprite alternative to the old SpriteBatch pushSprite
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		unsafe void PushSprite4Col(Sprite sprite, float destinationX, float destinationY, float destinationW,
+						float destinationH, Color tl, Color tr, Color bl, Color br, Vector2 origin,
+						float rotation, float depth, byte effects, float skewTopX, float skewBottomX, float skewLeftY,
+						float skewRightY)
+		{
+			// out of space, flush
+			if (_numSprites >= MAX_SPRITES)
+				FlushBatch();
+
+			// Source/Destination/Origin Calculations. destinationW/H is the scale value so we multiply by the size of the texture region
+			var originX = (origin.X / sprite.Uvs.Width) / sprite.Texture2D.Width;
+			var originY = (origin.Y / sprite.Uvs.Height) / sprite.Texture2D.Height;
+			destinationW *= sprite.SourceRect.Width;
+			destinationH *= sprite.SourceRect.Height;
+
+			// Rotation Calculations
+			float rotationMatrix1X;
+			float rotationMatrix1Y;
+			float rotationMatrix2X;
+			float rotationMatrix2Y;
+			if (!Mathf.WithinEpsilon(rotation))
+			{
+				var sin = Mathf.Sin(rotation);
+				var cos = Mathf.Cos(rotation);
+				rotationMatrix1X = cos;
+				rotationMatrix1Y = sin;
+				rotationMatrix2X = -sin;
+				rotationMatrix2Y = cos;
+			}
+			else
+			{
+				rotationMatrix1X = 1.0f;
+				rotationMatrix1Y = 0.0f;
+				rotationMatrix2X = 0.0f;
+				rotationMatrix2Y = 1.0f;
+			}
+
+
+			// flip our skew values if we have a flipped sprite
+			if (effects != 0)
+			{
+				skewTopX *= -1;
+				skewBottomX *= -1;
+				skewLeftY *= -1;
+				skewRightY *= -1;
+			}
+
+			fixed (VertexPositionColorTexture4* vertexInfo = &_vertexInfo[_numSprites])
+			{
+				// calculate vertices
+				// top-left
+				var cornerX = (_cornerOffsetX[0] - originX) * destinationW + skewTopX;
+				var cornerY = (_cornerOffsetY[0] - originY) * destinationH - skewLeftY;
+				vertexInfo->Position0.X = (
+					(rotationMatrix2X * cornerY) +
+					(rotationMatrix1X * cornerX) +
+					destinationX
+				);
+				vertexInfo->Position0.Y = (
+					(rotationMatrix2Y * cornerY) +
+					(rotationMatrix1Y * cornerX) +
+					destinationY
+				);
+
+				// top-right
+				cornerX = (_cornerOffsetX[1] - originX) * destinationW + skewTopX;
+				cornerY = (_cornerOffsetY[1] - originY) * destinationH - skewRightY;
+				vertexInfo->Position1.X = (
+					(rotationMatrix2X * cornerY) +
+					(rotationMatrix1X * cornerX) +
+					destinationX
+				);
+				vertexInfo->Position1.Y = (
+					(rotationMatrix2Y * cornerY) +
+					(rotationMatrix1Y * cornerX) +
+					destinationY
+				);
+
+				// bottom-left
+				cornerX = (_cornerOffsetX[2] - originX) * destinationW + skewBottomX;
+				cornerY = (_cornerOffsetY[2] - originY) * destinationH - skewLeftY;
+				vertexInfo->Position2.X = (
+					(rotationMatrix2X * cornerY) +
+					(rotationMatrix1X * cornerX) +
+					destinationX
+				);
+				vertexInfo->Position2.Y = (
+					(rotationMatrix2Y * cornerY) +
+					(rotationMatrix1Y * cornerX) +
+					destinationY
+				);
+
+				// bottom-right
+				cornerX = (_cornerOffsetX[3] - originX) * destinationW + skewBottomX;
+				cornerY = (_cornerOffsetY[3] - originY) * destinationH - skewRightY;
+				vertexInfo->Position3.X = (
+					(rotationMatrix2X * cornerY) +
+					(rotationMatrix1X * cornerX) +
+					destinationX
+				);
+				vertexInfo->Position3.Y = (
+					(rotationMatrix2Y * cornerY) +
+					(rotationMatrix1Y * cornerX) +
+					destinationY
+				);
+
+				vertexInfo->TextureCoordinate0.X =
+					(_cornerOffsetX[0 ^ effects] * sprite.Uvs.Width) + sprite.Uvs.X;
+				vertexInfo->TextureCoordinate0.Y =
+					(_cornerOffsetY[0 ^ effects] * sprite.Uvs.Height) + sprite.Uvs.Y;
+				vertexInfo->TextureCoordinate1.X =
+					(_cornerOffsetX[1 ^ effects] * sprite.Uvs.Width) + sprite.Uvs.X;
+				vertexInfo->TextureCoordinate1.Y =
+					(_cornerOffsetY[1 ^ effects] * sprite.Uvs.Height) + sprite.Uvs.Y;
+				vertexInfo->TextureCoordinate2.X =
+					(_cornerOffsetX[2 ^ effects] * sprite.Uvs.Width) + sprite.Uvs.X;
+				vertexInfo->TextureCoordinate2.Y =
+					(_cornerOffsetY[2 ^ effects] * sprite.Uvs.Height) + sprite.Uvs.Y;
+				vertexInfo->TextureCoordinate3.X =
+					(_cornerOffsetX[3 ^ effects] * sprite.Uvs.Width) + sprite.Uvs.X;
+				vertexInfo->TextureCoordinate3.Y =
+					(_cornerOffsetY[3 ^ effects] * sprite.Uvs.Height) + sprite.Uvs.Y;
+				vertexInfo->Position0.Z = depth;
+				vertexInfo->Position1.Z = depth;
+				vertexInfo->Position2.Z = depth;
+				vertexInfo->Position3.Z = depth;
+				vertexInfo->Color0 = tl;
+				vertexInfo->Color1 = tr;
+				vertexInfo->Color2 = bl;
+				vertexInfo->Color3 = br;
+			}
+
+			if (_disableBatching)
+			{
+				_vertexBuffer.SetData(0, _vertexInfo, 0, 1, VertexPositionColorTexture4.RealStride, SetDataOptions.None);
+				DrawPrimitives(sprite, 0, 1);
+			}
+			else
+			{
+				_textureInfo[_numSprites] = sprite;
+				_numSprites += 1;
+			}
+		}
+
 		public unsafe void FlushBatch()
 		{
 			if (_numSprites == 0)
@@ -1110,12 +1294,15 @@ namespace Nez
 			public Vector3 Position0;
 			public Color Color0;
 			public Vector2 TextureCoordinate0;
+
 			public Vector3 Position1;
 			public Color Color1;
 			public Vector2 TextureCoordinate1;
+
 			public Vector3 Position2;
 			public Color Color2;
 			public Vector2 TextureCoordinate2;
+
 			public Vector3 Position3;
 			public Color Color3;
 			public Vector2 TextureCoordinate3;

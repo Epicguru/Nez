@@ -276,6 +276,8 @@ namespace Nez.Console
 				default:
 					if (typed == (char)0)
 						break;
+					if (typed == '`')
+						break;
 					if((!char.IsWhiteSpace(typed) || typed == ' ') && !char.IsControl(typed))
 						_currentText += typed;
 					if (typed == 8 && _currentText?.Length > 0) // Backspace
