@@ -321,11 +321,6 @@ namespace Nez
 			{
 				_scene.Render();
 
-#if DEBUG
-				if (DebugRenderEnabled)
-					Debug.Render();
-#endif
-
 				// render as usual if we dont have an active SceneTransition
 				_scene.PostRender();
 			}

@@ -118,6 +118,15 @@ namespace Nez
 		}
 
 		[Conditional("DEBUG")]
+		public static void DrawText(string text, Vector2 position, Color color, float duration = 0f, float scale = 1f)
+		{
+			if (!Core.DebugRenderEnabled)
+				return;
+
+			_debugDrawItems.Add(new DebugDrawItem(Graphics.Instance.BitmapFont, text, position, color, duration, scale));
+		}
+
+		[Conditional("DEBUG")]
 		public static void DrawText(NezSpriteFont font, string text, Vector2 position, Color color, float duration = 0f,
 									float scale = 1f)
 		{
