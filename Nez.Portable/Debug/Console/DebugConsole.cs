@@ -161,6 +161,32 @@ namespace Nez.Console
 				_drawCommands.RemoveAt(_drawCommands.Count - 1);
 		}
 
+		[Command("bind", "Binds the last executed command to a function key, such as F1")]
+		private static void BindCommand(int key)
+		{
+			foreach (var item in Instance._commandHistory)
+			{
+				Debug.Log(item);
+			}
+
+			if (Instance._commandHistory.Count < 2)
+				return;
+
+			string text = Instance._commandHistory[1].Trim();
+			var data = text.Split(new char[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
+			string[] args = new string[data.Length - 1];
+			for (int i = 1; i < data.Length; i++)
+				args[i - 1] = data[i];
+
+			if (key < 1 || key > Instance._functionKeyActions.Length)
+			{
+				Instance.Log($"Invalid key index! Valid keys are 1 to {Instance._functionKeyActions.Length} inclusive.");
+				return;
+			}
+
+			BindCommandToFunctionKey(key, data[0].ToLower(), args);
+			Instance.Log($"Command '{text}' is now bound to F{key}");
+		}
 
 		#region Updating and Rendering
 
@@ -615,13 +641,15 @@ namespace Nez.Console
 						usage[i] += "string";
 					else if (p.ParameterType == typeof(int))
 						usage[i] += "int";
+					else if (p.ParameterType == typeof(byte))
+						usage[i] += "byte";
 					else if (p.ParameterType == typeof(float))
 						usage[i] += "float";
 					else if (p.ParameterType == typeof(bool))
 						usage[i] += "bool";
 					else
 						throw new Exception(method.DeclaringType.Name + "." + method.Name +
-						                    " is marked as a command, but has an invalid parameter type. Allowed types are: string, int, float, and bool");
+						                    " is marked as a command, but has an invalid parameter type. Allowed types are: string, int, byte, float, and bool");
 
 					// no System.DBNull in PCL so we fake it
 					if (p.DefaultValue.GetType().FullName == "System.DBNull")
@@ -670,6 +698,8 @@ namespace Nez.Console
 								param[i] = ArgString(args[i]);
 							else if (parameters[i].ParameterType == typeof(int))
 								param[i] = ArgInt(args[i]);
+							else if (parameters[i].ParameterType == typeof(byte))
+								param[i] = ArgByte(args[i]);
 							else if (parameters[i].ParameterType == typeof(float))
 								param[i] = ArgFloat(args[i]);
 							else if (parameters[i].ParameterType == typeof(bool))
@@ -724,6 +754,14 @@ namespace Nez.Console
 		{
 			
 			if (int.TryParse(arg, out var val))
+				return val;
+			return 0;
+		}
+
+		static byte ArgByte(string arg)
+		{
+
+			if (byte.TryParse(arg, out var val))
 				return val;
 			return 0;
 		}

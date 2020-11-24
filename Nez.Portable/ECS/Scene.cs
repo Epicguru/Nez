@@ -491,6 +491,11 @@ namespace Nez
 				}
 			}
 
+#if DEBUG
+			if (Core.DebugRenderEnabled)
+				Debug.Render();
+#endif
+
 			// deal with our Renderers that want to render after PostProcessors if we have any
 			for (var i = 0; i < _afterPostProcessorRenderers.Length; i++)
 			{
