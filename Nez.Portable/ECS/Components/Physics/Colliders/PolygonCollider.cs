@@ -11,10 +11,11 @@ namespace Nez
 	public class PolygonCollider : Collider
 	{
 		/// <summary>
-		/// If the points are not centered they will be centered with the difference being applied to the localOffset.
+		/// Creates a new polygon collider from the array of vertices. The vertices should be listed in clockwise order.
 		/// </summary>
 		/// <param name="points">Points.</param>
-		public PolygonCollider(Vector2[] points)
+		/// <param name="centerPoints">If true, the points will be centered with the difference being applied to the localOffset.</param>
+		public PolygonCollider(Vector2[] points, bool centerPoints = true)
 		{
 			// first and last point must not be the same. we want an open polygon
 			var isPolygonClosed = points[0] == points[points.Length - 1];
@@ -22,9 +23,10 @@ namespace Nez
 			if (isPolygonClosed)
 				Array.Resize(ref points, points.Length - 1);
 
-			var center = Polygon.FindPolygonCenter(points);
+			var center = centerPoints ? Polygon.FindPolygonCenter(points) : Vector2.Zero;
 			SetLocalOffset(center);
-			Polygon.RecenterPolygonVerts(points);
+			if(centerPoints)
+				Polygon.RecenterPolygonVerts(points);
 			Shape = new Polygon(points);
 		}
 

@@ -877,6 +877,9 @@ namespace Nez
 		                float rotation, float depth, byte effects, float skewTopX, float skewBottomX, float skewLeftY,
 		                float skewRightY)
 		{
+			if (sprite == null)
+				return;
+
 			// out of space, flush
 			if (_numSprites >= MAX_SPRITES)
 				FlushBatch();
