@@ -178,8 +178,28 @@ namespace Nez.Sprites
 
 		public override void Render(Batcher batcher, Camera camera)
 		{
-			batcher.Draw(Sprite, Entity.Transform.Position + LocalOffset, Color,
-				Entity.Transform.Rotation, Origin, Entity.Transform.Scale, SpriteEffects, _layerDepth);
+			Vector2 scale = Entity.Transform.Scale;
+			bool changeX = scale.X < 0f;
+			bool changeY = scale.Y < 0f;
+			bool fx = FlipX;
+			bool fy = FlipY;
+			var effect = SpriteEffects;
+			if (changeX)
+			{
+				scale.X = -scale.X;
+				fx = !fx;
+			}
+			if (changeY)
+			{
+				scale.Y = -scale.Y;
+				fy = !fy;
+			}
+			if (changeX || changeY)
+			{
+				effect = fx ? (effect | SpriteEffects.FlipHorizontally) : (effect & ~SpriteEffects.FlipHorizontally);
+				effect = fy ? (effect | SpriteEffects.FlipVertically) : (effect & ~SpriteEffects.FlipVertically);
+			}
+			batcher.Draw(Sprite, Entity.Transform.Position + LocalOffset, Color, Entity.Transform.Rotation, Origin, scale, effect, _layerDepth);
 		}
 	}
 }

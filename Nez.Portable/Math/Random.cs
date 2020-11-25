@@ -40,6 +40,25 @@ namespace Nez
 			return (float) RNG.NextDouble();
 		}
 
+		/// <summary>
+		/// Returns a random position within a unit circle.
+		/// The point is random distributed around the circle area.
+		/// </summary>
+		/// <returns></returns>
+		public static Vector2 PointInsideCircle()
+		{
+			return PointOnCircle() * (float)RNG.NextDouble();
+		}
+
+		/// <summary>
+		/// Returns a random position along the edge of a unit circle (radius 1).
+		/// </summary>
+		/// <returns></returns>
+		public static Vector2 PointOnCircle()
+		{
+			double a = Math.PI * 2.0 * RNG.NextDouble();
+			return new Vector2((float) Math.Cos(a), (float) Math.Sin(a));
+		}
 
 		/// <summary>
 		/// returns a random float between 0 (inclusive) and max (exclusive)

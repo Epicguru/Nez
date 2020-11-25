@@ -217,6 +217,14 @@ namespace Nez
 		}
 
 
+		/// <summary>
+		/// Creates a RectangleF from a center position and a size.
+		/// </summary>
+		public static RectangleF Centered(Vector2 center, Vector2 size)
+		{
+			return new RectangleF(center.X - size.X * 0.5f, center.Y - size.Y * 0.5f, size.X, size.Y);
+		}
+
 		#region Public Methods
 
 		/// <summary>

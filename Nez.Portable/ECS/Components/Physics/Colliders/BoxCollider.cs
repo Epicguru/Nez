@@ -22,6 +22,9 @@ namespace Nez
 			set => SetHeight(value);
 		}
 
+#if DEBUG
+		public bool DrawDebug = true;
+#endif
 
 		/// <summary>
 		/// zero param constructor requires that a RenderableComponent be on the entity so that the collider can size itself when the
@@ -132,6 +135,10 @@ namespace Nez
 
 		public override void DebugRender(Batcher batcher)
 		{
+#if DEBUG
+			if (!DrawDebug)
+				return;
+
 			var poly = Shape as Polygon;
 			batcher.DrawHollowRect(Bounds, Debug.Colors.ColliderBounds, Debug.Size.LineSizeMultiplier);
 			batcher.DrawPolygon(Shape.position, poly.Points, Debug.Colors.ColliderEdge, true,
@@ -140,6 +147,7 @@ namespace Nez
 				4 * Debug.Size.LineSizeMultiplier);
 			batcher.DrawPixel(Entity.Transform.Position + Shape.center, Debug.Colors.ColliderCenter,
 				2 * Debug.Size.LineSizeMultiplier);
+#endif
 		}
 
 		public override string ToString()
