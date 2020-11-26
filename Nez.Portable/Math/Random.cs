@@ -125,6 +125,21 @@ namespace Nez
 			return min + NextFloat(max - min);
 		}
 
+		/// <summary>
+		/// Returns a random angle between 0 and 2PI.
+		/// </summary>
+		public static float AngleRad()
+		{
+			return NextFloat((float)(Math.PI * 2.0));
+		}
+
+		/// <summary>
+		/// Returns a random angle between 0 and 360.
+		/// </summary>
+		public static float AngleDeg()
+		{
+			return NextFloat(360f);
+		}
 
 		/// <summary>
 		/// Returns a random Vector2, and x- and y-values of which are between min (inclusive) and max (exclusive)
