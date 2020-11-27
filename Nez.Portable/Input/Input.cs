@@ -102,6 +102,17 @@ namespace Nez
 			for (var i = 0; i < _virtualInputs.Length; i++)
 				_virtualInputs.Buffer[i].Update();
 
+			UpdateWorldMousePos();
+		}
+
+		/// <summary>
+		/// Updates the world mouse position using the current scene camera.
+		/// This method is called automatically after every <see cref="Update"/>, but sometimes
+		/// it may be necessary to call again if you change the camera
+		/// position.
+		/// </summary>
+		public static void UpdateWorldMousePos()
+		{
 			if (Core.Scene?.Camera != null)
 				_worldMousePos = Core.Scene.Camera.ScreenToWorldPoint(MousePosition);
 		}
