@@ -371,7 +371,7 @@ namespace Nez.Systems
 				}
 				catch (Exception e)
 				{
-					Debug.Error("Could not unload asset {0}. {1}", assetName, e);
+					Debug.Error($"Could not unload asset {assetName}. {e}");
 				}
 			}
 			else

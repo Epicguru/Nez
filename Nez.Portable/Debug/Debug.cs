@@ -19,25 +19,25 @@ namespace Nez
 		#region Logging
 
 		[DebuggerHidden]
-		static void Log(LogType type, string format, params object[] args)
+		static void Log(LogType type, string format)
 		{
 			//System.Console.WriteLine($"{type}: {string.Format(format, args)}");
 			switch (type)
 			{
 				case LogType.Error:
-					System.Diagnostics.Debug.WriteLine(type.ToString() + ": " + format, args);
+					System.Diagnostics.Debug.WriteLine(type.ToString() + ": " + format);
 					break;
 				case LogType.Warn:
-					System.Diagnostics.Debug.WriteLine(type.ToString() + ": " + format, args);
+					System.Diagnostics.Debug.WriteLine(type.ToString() + ": " + format);
 					break;
 				case LogType.Log:
-					System.Diagnostics.Debug.WriteLine(type.ToString() + ": " + format, args);
+					System.Diagnostics.Debug.WriteLine(type.ToString() + ": " + format);
 					break;
 				case LogType.Info:
-					System.Diagnostics.Debug.WriteLine(type.ToString() + ": " + format, args);
+					System.Diagnostics.Debug.WriteLine(type.ToString() + ": " + format);
 					break;
 				case LogType.Trace:
-					System.Diagnostics.Debug.WriteLine(type.ToString() + ": " + format, args);
+					System.Diagnostics.Debug.WriteLine(type.ToString() + ": " + format);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -45,80 +45,73 @@ namespace Nez
 		}
 
 		[DebuggerHidden]
-		public static void Error(string format, params object[] args)
+		public static void Error(string format)
 		{
-			Log(LogType.Error, format, args);
+			Log(LogType.Error, format);
 		}
 
 		[DebuggerHidden]
-		public static void ErrorIf(bool condition, string format, params object[] args)
+		public static void ErrorIf(bool condition, string format)
 		{
 			if (condition)
-				Log(LogType.Error, format, args);
+				Log(LogType.Error, format);
 		}
 
 		[DebuggerHidden]
 		[Conditional("DEBUG")]
-		public static void ErrorIfDebug(bool condition, string format, params object[] args)
+		public static void ErrorIfDebug(bool condition, string format)
 		{
 			if (condition)
-				Log(LogType.Error, format, args);
+				Log(LogType.Error, format);
 		}
 
 		[DebuggerHidden]
-		public static void Warn(string format, params object[] args)
+		public static void Warn(string format)
 		{
-			Log(LogType.Warn, format, args);
+			Log(LogType.Warn, format);
 		}
 
 		[DebuggerHidden]
-		public static void WarnIf(bool condition, string format, params object[] args)
+		public static void WarnIf(bool condition, string format)
 		{
 			if (condition)
-				Log(LogType.Warn, format, args);
+				Log(LogType.Warn, format);
 		}
 
 		[Conditional("DEBUG")]
 		[DebuggerHidden]
 		public static void Log(object obj)
 		{
-			Log(LogType.Log, "{0}", obj);
+			Log(LogType.Log, obj?.ToString() ?? "<null>");
 		}
 
 		[Conditional("DEBUG")]
 		[DebuggerHidden]
 		public static void Log(string obj)
 		{
-			Log(LogType.Log, "{0}", obj);
+			Log(LogType.Log, obj);
 		}
 
 		[Conditional("DEBUG")]
 		[DebuggerHidden]
-		public static void Log(string format, params object[] args)
-		{
-			Log(LogType.Log, format, args);
-		}
-
-		[Conditional("DEBUG")]
-		[DebuggerHidden]
-		public static void LogIf(bool condition, string format, params object[] args)
+		public static void LogIf(bool condition, string format)
 		{
 			if (condition)
-				Log(LogType.Log, format, args);
+				Log(LogType.Log, format);
 		}
 
 		[Conditional("DEBUG")]
 		[DebuggerHidden]
-		public static void Info(string format, params object[] args)
+		public static void Info(string format)
 		{
-			Log(LogType.Info, format, args);
+			Log(LogType.Info, format);
 		}
 
 		[Conditional("DEBUG")]
 		[DebuggerHidden]
-		public static void Trace(string format, params object[] args)
+		public static void Trace(string format)
 		{
-			Log(LogType.Trace, format, args);
+			Log(LogType.Trace, format);
 		}
 
 		#endregion

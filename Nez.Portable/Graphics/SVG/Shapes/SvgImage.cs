@@ -80,7 +80,7 @@ namespace Nez.Svg
 				}
 				catch (ContentLoadException)
 				{
-					Debug.Error("Could not load SvgImage from href: {0}", Href);
+					Debug.Error($"Could not load SvgImage from href: {Href}");
 				}
 			}
 
