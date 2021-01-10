@@ -1,8 +1,8 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 
 namespace Nez.BitmapFonts
@@ -154,15 +154,14 @@ namespace Nez.BitmapFonts
 				if (Characters.TryGetValue(character, out var found))
 					return found;
 
-				//Debug.Warn("Failed to find character for '{0}'. Returning '{1}' instead.", character, DefaultCharacter?.Char.ToString() ?? "<null>");
 				return DefaultCharacter;
 			}
 		}
 
-		public void Initialize()
+		public void Initialize(bool premultiplyAlpha)
 		{
-			LoadTextures();
-			if (Characters.TryGetValue('?', out var defaultChar))
+			LoadTextures(premultiplyAlpha);
+			if (Characters.TryGetValue(' ', out var defaultChar))
 			{
 				DefaultCharacter = defaultChar;
 			}
