@@ -68,7 +68,15 @@ namespace Nez.ImGuiTools
 
 		void Unload()
 		{
-			_drawCommands.Clear();
+			for (int i = 0; i < _drawCommands.Count; i++)
+			{
+				var cmd = _drawCommands[i];
+				if (_globalDrawCommands.Contains(cmd))
+					continue;
+
+				_drawCommands.RemoveAt(i);
+				i--;
+			}
 			_entityInspectors.Clear();
 
 			if (_renderTargetId != IntPtr.Zero)

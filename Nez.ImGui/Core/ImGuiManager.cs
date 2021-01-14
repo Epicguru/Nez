@@ -32,6 +32,7 @@ namespace Nez.ImGuiTools
 
 		List<EntityInspector> _entityInspectors = new List<EntityInspector>();
 		List<Action> _drawCommands = new List<Action>();
+		HashSet<Action> _globalDrawCommands = new HashSet<Action>();
 		ImGuiRenderer _renderer;
 
 		Num.Vector2 _gameWindowFirstPosition;
@@ -226,13 +227,24 @@ namespace Nez.ImGuiTools
 		/// registers an Action that will be called and any ImGui drawing can be done in it
 		/// </summary>
 		/// <param name="drawCommand"></param>
-		public void RegisterDrawCommand(Action drawCommand) => _drawCommands.Add(drawCommand);
+		/// <param name="global">If true, draw command will be issued regardless of current scene. If false (it is false by default) then it will no longer be called after a scene change.</param>
+		public void RegisterDrawCommand(Action drawCommand, bool global = false)
+		{
+			_drawCommands.Add(drawCommand);
+			if (global)
+				_globalDrawCommands.Add(drawCommand);
+		}
 
 		/// <summary>
 		/// removes the Action from the draw commands
 		/// </summary>
 		/// <param name="drawCommand"></param>
-		public void UnregisterDrawCommand(Action drawCommand) => _drawCommands.Remove(drawCommand);
+		public void UnregisterDrawCommand(Action drawCommand)
+		{
+			_drawCommands.Remove(drawCommand);
+			if (_globalDrawCommands.Contains(drawCommand))
+				_globalDrawCommands.Remove(drawCommand);
+		}
 
 		/// <summary>
 		/// Creates a pointer to a texture, which can be passed through ImGui calls such as <see cref="ImGui.Image" />.

@@ -144,8 +144,17 @@ namespace Nez
 			return component;
 		}
 
-		public int CompareTo(Component other) => _updateOrder.CompareTo(other._updateOrder);
+		public T GetComponent<T>() where T : Component
+		{
+			return Entity?.GetComponent<T>();
+		}
 
+		public T GetComponent<T>(bool returnOnlyInitialized) where T : Component
+		{
+			return Entity?.GetComponent<T>(returnOnlyInitialized);
+		}
+
+		public int CompareTo(Component other) => _updateOrder.CompareTo(other._updateOrder);
 
 		public override string ToString() => $"[Component: type: {GetType()}, updateOrder: {UpdateOrder}]";
 	}

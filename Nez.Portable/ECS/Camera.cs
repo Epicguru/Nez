@@ -306,7 +306,11 @@ namespace Nez
 			Origin = new Vector2(newWidth / 2f, newHeight / 2f);
 
 			// offset our position to match the new center
-			Entity.Transform.Position += (_origin - oldOrigin);
+
+			// NOTE: disabled because this maintains the top-left position,
+			// despite the fact that zoom and position are based on center position,
+			// and this also doesn't take zoom into account.
+			//Entity.Transform.Position += (_origin - oldOrigin);
 		}
 
 
